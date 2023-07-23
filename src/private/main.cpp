@@ -6,6 +6,8 @@
 #include<Shader.h>
 #include<Program.h>
 #include<Window.h>
+#include<VBO.h>
+
 const char* vertexShaderSource = R"(
 #version 460 core
 layout (location = 0) in vec3 aPos;
@@ -42,18 +44,17 @@ int main()
 		 0.0f,  0.5f, 0.0f
 	};
 
-	GLuint VAO, VBO;
+	GLuint VAO;
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
 	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+	Gx::VBO* vbo = new Gx::VBO();
+	vbo->Bind();
+	vbo->SetData(vertices, sizeof(vertices), GL_STATIC_DRAW);
+	vbo->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	vbo->EnableVertexAttribArray(0);
+	vbo->Unbind();
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
 	while (!window->shouldClose())
@@ -68,7 +69,7 @@ int main()
 	}
 
 	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &VBO1);
 	glDeleteProgram(shaderProgram);
 	delete window;
 
