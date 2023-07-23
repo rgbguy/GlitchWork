@@ -1,16 +1,11 @@
-#pragma once
+#include <GLErrorHandler.h>
 
-#define ASSERT(x) if (!(x)) __debugbreak();
-#define GLCall(x) GLClearError();\
-	x;\
-	ASSERT(GLLogCall(#x, __FILE__, __LINE__))
-
-static void GLClearError()
+void GLClearError()
 {
 	while (glGetError());
 }
 
-static bool GLLogCall(const char* function, const char* file, int line)
+bool GLLogCall(const char* function, const char* file, int line)
 {
 	while (GLenum error = glGetError())
 	{

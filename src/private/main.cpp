@@ -1,9 +1,11 @@
 #include<iostream>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
-#include<errorHandler.h>
+#include<GLErrorHandler.h>
 #include<glm/glm.hpp>
-
+#include<Shader.h>
+#include<Program.h>
+#include<Window.h>
 const char* vertexShaderSource = R"(
 #version 460 core
 layout (location = 0) in vec3 aPos;
@@ -25,39 +27,13 @@ void main()
 
 int main()
 {
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	GLFWwindow* window = glfwCreateWindow(800, 800, "MyWindow", NULL, NULL);
-	if (!window)
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-	glfwMakeContextCurrent(window);
-
-	gladLoadGL();
+	Window* window = new Window(800, 800, "GlitchWork");
+	
 	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-	CheckShaderStatus(vertexShader);
-
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	GLCall(glCompileShader(fragmentShader));
-	CheckShaderStatus(fragmentShader);
-
-	GLuint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	uint32_t vsID = Gx::Shader(vertexShaderSource, Gx::ShaderType::VERTEX).GetID();
+	uint32_t fsID = Gx::Shader(fragmentShaderSource, Gx::ShaderType::FRAGMENT).GetID();
+	uint32_t shaderProgram = Gx::Program(vsID, fsID).getID();
 
 	GLfloat vertices[] =
 	{
@@ -80,7 +56,7 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	while (!glfwWindowShouldClose(window))
+	while (!window->shouldClose())
 	{
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -88,15 +64,13 @@ int main()
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		window->update();
 	}
 
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteProgram(shaderProgram);
-	glfwDestroyWindow(window);
-	glfwTerminate();
+	delete window;
 
 	return 0;
 }
