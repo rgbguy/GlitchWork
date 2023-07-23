@@ -29,7 +29,7 @@ void main()
 
 int main()
 {
-	Window* window = new Window(800, 800, "GlitchWork");
+	Gx::Window* window = new Gx::Window(800, 800, "GlitchWork");
 	
 	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
@@ -69,8 +69,9 @@ int main()
 	}
 
 	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO1);
 	glDeleteProgram(shaderProgram);
+
+	delete vbo;
 	delete window;
 
 	return 0;
