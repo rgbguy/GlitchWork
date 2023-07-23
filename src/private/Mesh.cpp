@@ -10,7 +10,6 @@ namespace Gx {
         m_vao.Bind();
 
         if (!vertices.empty()) {
-            VBO vboVertices;
             vboVertices.SetData(vertices.data(), sizeof(glm::vec3) * vertices.size(), GL_STATIC_DRAW);
             m_vbos.push_back(vboVertices);
 
@@ -19,7 +18,6 @@ namespace Gx {
         }
 
         if (!normals.empty()) {
-            VBO vboNormals;
             vboNormals.SetData(normals.data(), sizeof(glm::vec3) * normals.size(), GL_STATIC_DRAW);
             m_vbos.push_back(vboNormals);
 
@@ -27,7 +25,6 @@ namespace Gx {
         }
 
         if (!texCoords.empty()) {
-            VBO vboTexCoords;
             vboTexCoords.SetData(texCoords.data(), sizeof(glm::vec2) * texCoords.size(), GL_STATIC_DRAW);
             m_vbos.push_back(vboTexCoords);
 

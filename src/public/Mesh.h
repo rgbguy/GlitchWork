@@ -11,6 +11,10 @@ namespace Gx {
         std::vector<VBO> m_vbos;
         GLsizei m_vertexCount;
 
+        VBO vboVertices;
+        VBO vboNormals;
+        VBO vboTexCoords;
+
     public:
         Mesh(const std::vector<glm::vec3>& vertices,
             const std::vector<glm::vec3>& normals,

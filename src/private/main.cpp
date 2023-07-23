@@ -7,6 +7,9 @@
 #include<Program.h>
 #include<Window.h>
 #include<VBO.h>
+#include<vector>
+#include<Mesh.h>
+#include<memory> // Include for smart pointers
 
 const char* vertexShaderSource = R"(
 #version 460 core
@@ -29,50 +32,43 @@ void main()
 
 int main()
 {
-	Gx::Window* window = new Gx::Window(800, 800, "GlitchWork");
-	
-	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+    // Use unique_ptr for Window and Mesh to manage memory
+    std::unique_ptr<Gx::Window> window = std::make_unique<Gx::Window>(800, 800, "GlitchWork");
 
-	uint32_t vsID = Gx::Shader(vertexShaderSource, Gx::ShaderType::VERTEX).GetID();
-	uint32_t fsID = Gx::Shader(fragmentShaderSource, Gx::ShaderType::FRAGMENT).GetID();
-	uint32_t shaderProgram = Gx::Program(vsID, fsID).getID();
+    std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
-	GLfloat vertices[] =
-	{
-		-0.5f, -0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		 0.0f,  0.5f, 0.0f
-	};
+    uint32_t vsID = Gx::Shader(vertexShaderSource, Gx::ShaderType::VERTEX).GetID();
+    uint32_t fsID = Gx::Shader(fragmentShaderSource, Gx::ShaderType::FRAGMENT).GetID();
+    uint32_t shaderProgram = Gx::Program(vsID, fsID).getID();
 
-	GLuint VAO;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+    GLfloat vertices[] =
+    {
+        -0.5f, -0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f,
+         0.0f,  0.5f, 0.0f
+    };
 
-	Gx::VBO* vbo = new Gx::VBO();
-	vbo->Bind();
-	vbo->SetData(vertices, sizeof(vertices), GL_STATIC_DRAW);
-	vbo->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	vbo->EnableVertexAttribArray(0);
-	vbo->Unbind();
+    // Create a mesh from the vertex data
+    std::vector<glm::vec3> meshVertices;
+    for (int i = 0; i < sizeof(vertices) / sizeof(vertices[0]); i += 3) {
+        meshVertices.push_back(glm::vec3(vertices[i], vertices[i + 1], vertices[i + 2]));
+    }
 
-	glBindVertexArray(0);
+    // Use unique_ptr for Mesh to manage memory
+    std::unique_ptr<Gx::Mesh> mesh = std::make_unique<Gx::Mesh>(meshVertices, std::vector<glm::vec3>(), std::vector<glm::vec2>());
 
-	while (!window->shouldClose())
-	{
-		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glUseProgram(shaderProgram);
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+    while (!window->shouldClose())
+    {
+        glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glUseProgram(shaderProgram);
 
-		window->update();
-	}
+        mesh->Draw();
 
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteProgram(shaderProgram);
+        window->update();
+    }
 
-	delete vbo;
-	delete window;
+    glDeleteProgram(shaderProgram);
 
-	return 0;
+    return 0;
 }
